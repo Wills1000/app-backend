@@ -43,7 +43,7 @@ enum ChallengeStatus {
   CANCELLED
   REFUNDED
   EXPIRED
-} 
+}
 
 enum TransactionType {
   CREDIT
@@ -73,82 +73,82 @@ enum AccountStatus {
 }
 
 model User {
-  id                   String        @id @default(uuid())
-  firebaseUid          String        @unique
-  email                String        @unique
-  accountStatus        AccountStatus @default(ACTIVE)
-  isVerified           Boolean       @default(false)
-  createdAt            DateTime      @default(now())
-  updatedAt            DateTime      @updatedAt
-  lastActiveAt         DateTime      @default(now())
-  notifications        Notification[]
-  deviceTokens         DeviceToken[]
-  notificationPref     NotificationPreference?
-  stats                UserStats?
-  role                 UserRole      @default(USER)
-  status               UserStatus    @default(ACTIVE)
-  moderationLogs       ModerationLog[] @relation("TargetUserLogs")
-  adminLogs            ModerationLog[] @relation("AdminUserLogs")
+  id               String                  @id @default(uuid())
+  firebaseUid      String                  @unique
+  email            String                  @unique
+  accountStatus    AccountStatus           @default(ACTIVE)
+  isVerified       Boolean                 @default(false)
+  createdAt        DateTime                @default(now())
+  updatedAt        DateTime                @updatedAt
+  lastActiveAt     DateTime                @default(now())
+  notifications    Notification[]
+  deviceTokens     DeviceToken[]
+  notificationPref NotificationPreference?
+  stats            UserStats?
+  role             UserRole                @default(USER)
+  status           UserStatus              @default(ACTIVE)
+  moderationLogs   ModerationLog[]         @relation("TargetUserLogs")
+  adminLogs        ModerationLog[]         @relation("AdminUserLogs")
 
-  profile              Profile?
-  wallet               Wallet?
-  hostedChallenges     Challenge[]   @relation("HostedChallenges")
-  joinedChallenges     Challenge[]   @relation("JoinedChallenges")
-  wonChallenges        Challenge[]   @relation("WonChallenges")
-  transactions         Transaction[]
-  postReports          PostReport[]
-  statusReactions      StatusReaction[]
-  tickets              Ticket[]
+  profile          Profile?
+  wallet           Wallet?
+  hostedChallenges Challenge[]      @relation("HostedChallenges")
+  joinedChallenges Challenge[]      @relation("JoinedChallenges")
+  wonChallenges    Challenge[]      @relation("WonChallenges")
+  transactions     Transaction[]
+  postReports      PostReport[]
+  statusReactions  StatusReaction[]
+  tickets          Ticket[]
 
   // Social Relations
-  playerGames          PlayerGame[]
-  following            Follow[]        @relation("UserFollowing")
-  followers            Follow[]        @relation("UserFollowers")
-  sentRequests         FriendRequest[] @relation("SentFriendRequests")
-  recvRequests         FriendRequest[] @relation("ReceivedFriendRequests")
-  blockedUsers         Block[]         @relation("BlockedUsers")
-  blockedByUsers       Block[]         @relation("BlockedByUsers")
-  userGames            UserGame[]
+  playerGames    PlayerGame[]
+  following      Follow[]        @relation("UserFollowing")
+  followers      Follow[]        @relation("UserFollowers")
+  sentRequests   FriendRequest[] @relation("SentFriendRequests")
+  recvRequests   FriendRequest[] @relation("ReceivedFriendRequests")
+  blockedUsers   Block[]         @relation("BlockedUsers")
+  blockedByUsers Block[]         @relation("BlockedByUsers")
+  userGames      UserGame[]
 
   // Matchmaking Relations
   challengeParticipants ChallengeParticipant[]
   challengeAcceptances  ChallengeAcceptance[]
-  sentInvites           ChallengeInvite[]     @relation("SentInvites")
-  recvInvites           ChallengeInvite[]     @relation("ReceivedInvites")
+  sentInvites           ChallengeInvite[]      @relation("SentInvites")
+  recvInvites           ChallengeInvite[]      @relation("ReceivedInvites")
   submittedResults      ChallengeResult[]
-  disputesRaised        Dispute[]             @relation("DisputesRaised")
+  disputesRaised        Dispute[]              @relation("DisputesRaised")
   waitingRooms          WaitingRoom[]
 
   // Financial Relations
-  payments              Payment[]
-  withdrawals           Withdrawal[]
+  payments    Payment[]
+  withdrawals Withdrawal[]
 
   // Chat & Call Relations
-  conversationMembers   ConversationMember[]
-  sentMessages          Message[]             @relation("SentMessages")
-  messageReactions      MessageReaction[]
-  messageReads          MessageRead[]
-  initiatedCalls        Call[]                @relation("InitiatedCalls")
-  callParticipants      CallParticipant[]
+  conversationMembers ConversationMember[]
+  sentMessages        Message[]            @relation("SentMessages")
+  messageReactions    MessageReaction[]
+  messageReads        MessageRead[]
+  initiatedCalls      Call[]               @relation("InitiatedCalls")
+  callParticipants    CallParticipant[]
 
   // Feed & Notification Relations
-  posts                 Post[]
-  postLikes             PostLike[]
-  postComments          PostComment[]
-  postShares            PostShare[]
-  statuses              Status[]
-  statusViews           StatusView[]
-  statusReplies         StatusReply[]
+  posts         Post[]
+  postLikes     PostLike[]
+  postComments  PostComment[]
+  postShares    PostShare[]
+  statuses      Status[]
+  statusViews   StatusView[]
+  statusReplies StatusReply[]
 
   // Analytics, Support & Governance Relations
-  playerStats           PlayerStats[]
-  tournament            TournamentParticipant[]
-  reportsSubmitted      Report[]                @relation("ReportsSubmitted")
-  reportsReceived       Report[]                @relation("ReportsReceived")
-  moderationActions     ModerationAction[]      @relation("ModeratorActions")
-  searchHistory         SearchHistory[]
-  supportTickets        SupportTicket[]
-  auditLogs             AuditLog[]  
+  playerStats       PlayerStats[]
+  tournament        TournamentParticipant[]
+  reportsSubmitted  Report[]                @relation("ReportsSubmitted")
+  reportsReceived   Report[]                @relation("ReportsReceived")
+  moderationActions ModerationAction[]      @relation("ModeratorActions")
+  searchHistory     SearchHistory[]
+  supportTickets    SupportTicket[]
+  auditLogs         AuditLog[]
 
   @@map("users")
 }
@@ -161,31 +161,31 @@ enum Gender {
 }
 
 model Profile {
-  id                String    @id @default(uuid())
-  userId            String    @unique
-  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  username          String    @unique
-  avatarUrl         String?
-  bio               String?
-  region            String?
-  country           String?
-  gender            Gender?
-  dateOfBirth       DateTime?
-  
-  gamingIds         Json      @default("{}")
-  
-  matchesPlayed     Int       @default(0)
-  matchesWon        Int       @default(0)
-  matchesLost       Int       @default(0)
-  winRate           Float     @default(0.0)
-  totalEarnings     Float     @default(0.0)
-  
-  isVerified        Boolean   @default(false)
-  isPrivate         Boolean   @default(false)
-  
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  username    String    @unique
+  avatarUrl   String?
+  bio         String?
+  region      String?
+  country     String?
+  gender      Gender?
+  dateOfBirth DateTime?
+
+  gamingIds Json @default("{}")
+
+  matchesPlayed Int   @default(0)
+  matchesWon    Int   @default(0)
+  matchesLost   Int   @default(0)
+  winRate       Float @default(0.0)
+  totalEarnings Float @default(0.0)
+
+  isVerified Boolean @default(false)
+  isPrivate  Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum GameStatus {
@@ -195,59 +195,59 @@ enum GameStatus {
   INACTIVE
 }
 
-model Game { 
-  id            String        @id @default(uuid())
-  title         String        @unique
-  slug          String        @unique
-  imageUrl      String?       
-  iconUrl       String?       
-  bannerUrl     String?       
-  description   String?       
-  isActive      Boolean       @default(true)
-  status        GameStatus    @default(ACTIVE) 
+model Game {
+  id          String     @id @default(uuid())
+  title       String     @unique
+  slug        String     @unique
+  imageUrl    String?
+  iconUrl     String?
+  bannerUrl   String?
+  description String?
+  isActive    Boolean    @default(true)
+  status      GameStatus @default(ACTIVE)
 
-  modes         GameMode[]
-  challenges    Challenge[]
-  playerGames   PlayerGame[]  
-  userGames     UserGame[]    
-  waitingRooms  WaitingRoom[]
-  tournaments   Tournament[]
-  playerStats   PlayerStats[]
+  modes        GameMode[]
+  challenges   Challenge[]
+  playerGames  PlayerGame[]
+  userGames    UserGame[]
+  waitingRooms WaitingRoom[]
+  tournaments  Tournament[]
+  playerStats  PlayerStats[]
 
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("games")
 }
 
 model GameMode {
-  id          String   @id @default(uuid())
-  name        String   
+  id          String  @id @default(uuid())
+  name        String
   description String?
   gameId      String
-  game        Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  game        Game    @relation(fields: [gameId], references: [id], onDelete: Cascade)
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("game_modes")
-} 
+}
 
 model UserGame {
-  id        String   @id @default(uuid())
-  userId    String
-  gameId    String
-  ign       String   
-  
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  game      Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  id     String @id @default(uuid())
+  userId String
+  gameId String
+  ign    String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@unique([userId, gameId])
   @@map("user_games")
-} 
+}
 
 model UserStats {
   id            String   @id @default(uuid())
@@ -256,11 +256,11 @@ model UserStats {
   gamesPlayed   Int      @default(0)
   wins          Int      @default(0)
   losses        Int      @default(0)
-  winRate       Float    @default(0.0) 
-  rating        Float    @default(1000.0) 
+  winRate       Float    @default(0.0)
+  rating        Float    @default(1000.0)
   totalEarnings Float    @default(0.0)
-  region        String?  
-  gameType      String?  
+  region        String?
+  gameType      String?
   updatedAt     DateTime @updatedAt
 }
 
@@ -270,7 +270,7 @@ model PlayerGame {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   gameId    String
   game      Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
-  inGameId  String   
+  inGameId  String
   rank      String?
   createdAt DateTime @default(now())
 
@@ -319,7 +319,7 @@ model ModerationLog {
   admin        User     @relation("AdminUserLogs", fields: [adminId], references: [id])
   targetUserId String?
   targetUser   User?    @relation("TargetUserLogs", fields: [targetUserId], references: [id], onDelete: SetNull)
-  action       String   
+  action       String
   reason       String
   createdAt    DateTime @default(now())
 
@@ -340,48 +340,52 @@ enum UserStatus {
 }
 
 model Wallet {
-  id             String        @id @default(uuid())
-  userId         String        @unique
-  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  balance        Float         @default(0.0) 
-  lockedBalance  Float         @default(0.0) 
-  coinBalance    Float         @default(0.0) 
-  coinRate       Float         @default(1.0) 
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  id            String   @id @default(uuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  balance       Float    @default(0.0)
+  lockedBalance Float    @default(0.0)
+  coinBalance   Float    @default(0.0)
+  coinRate      Float    @default(1.0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  transactions   Transaction[]
+  transactions Transaction[]
+  WalletLedger WalletLedger[]
+  Escrow       Escrow[]
+  Withdrawal   Withdrawal[]
 
   @@map("wallets")
-} 
+}
 
 model CoinRate {
   id        String   @id @default(uuid())
-  rate      Float    
+  rate      Float
   isActive  Boolean  @default(true)
-  updatedBy String   
+  updatedBy String
   createdAt DateTime @default(now())
 }
 
 model Challenge {
-  id           String             @id @default(uuid())
-  hostId       String
-  host         User               @relation("HostedChallenges", fields: [hostId], references: [id])
-  opponentId   String?
-  opponent     User?              @relation("JoinedChallenges", fields: [opponentId], references: [id])
-  gameId       String
-  game         Game               @relation(fields: [gameId], references: [id])
-  stakeAmount  Decimal            @db.Decimal(12, 2)
-  status       ChallengeStatus    @default(OPEN)
-  winnerId     String?
-  winner       User?              @relation("WonChallenges", fields: [winnerId], references: [id])
-  createdAt    DateTime           @default(now())
+  id          String          @id @default(uuid())
+  hostId      String
+  host        User            @relation("HostedChallenges", fields: [hostId], references: [id])
+  opponentId  String?
+  opponent    User?           @relation("JoinedChallenges", fields: [opponentId], references: [id])
+  gameId      String
+  game        Game            @relation(fields: [gameId], references: [id])
+  stakeAmount Decimal         @db.Decimal(12, 2)
+  status      ChallengeStatus @default(OPEN)
+  winnerId    String?
+  winner      User?           @relation("WonChallenges", fields: [winnerId], references: [id])
+  createdAt   DateTime        @default(now())
 
   participants ChallengeParticipant[]
   acceptances  ChallengeAcceptance[]
   invites      ChallengeInvite[]
   results      ChallengeResult[]
   disputes     Dispute[]
+  WaitingRoom  WaitingRoom?
 
   @@map("challenges")
 }
@@ -394,10 +398,12 @@ model Transaction {
   amount        Float
   balanceBefore Float
   balanceAfter  Float
-  reference     String            @unique 
+  reference     String            @unique
   status        TransactionStatus @default(SUCCESS)
-  metadata      Json?             
-  createdAt     DateTime          @default(now()) 
+  metadata      Json?
+  createdAt     DateTime          @default(now())
+  User          User?             @relation(fields: [userId], references: [id])
+  userId        String?
 
   @@index([walletId])
   @@index([reference])
@@ -462,16 +468,20 @@ model ChallengeInvite {
 
   @@map("challenge_invites")
 }
- 
+
 model WaitingRoom {
-  id             String    @id @default(cuid())
-  challengeId    String    @unique
-  challenge      Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
-  roomCode       String?  
-  hostReady      Boolean   @default(false)
-  opponentReady  Boolean   @default(false)
-  expiresAt      DateTime 
-  createdAt      DateTime  @default(now())
+  id            String    @id @default(cuid())
+  challengeId   String    @unique
+  challenge     Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  roomCode      String?
+  hostReady     Boolean   @default(false)
+  opponentReady Boolean   @default(false)
+  expiresAt     DateTime
+  createdAt     DateTime  @default(now())
+  User          User?     @relation(fields: [userId], references: [id])
+  userId        String?
+  Game          Game?     @relation(fields: [gameId], references: [id])
+  gameId        String?
 }
 
 model ChallengeResult {
@@ -484,10 +494,10 @@ model ChallengeResult {
   playerScore     Int          @default(0)
   opponentScore   Int          @default(0)
   status          ResultStatus @default(PENDING)
-  deadlineAt      DateTime?    
+  deadlineAt      DateTime?
   createdAt       DateTime     @default(now())
 
-  proofs          ResultProof[]
+  proofs ResultProof[]
 
   @@map("challenge_results")
 }
@@ -496,8 +506,8 @@ model ResultProof {
   id        String          @id @default(uuid())
   resultId  String
   result    ChallengeResult @relation(fields: [resultId], references: [id], onDelete: Cascade)
-  mediaUrl  String          
-  type      String?         
+  mediaUrl  String
+  type      String?
   createdAt DateTime        @default(now())
 
   @@map("result_proofs")
@@ -513,7 +523,7 @@ model Dispute {
   status      DisputeStatus @default(OPEN)
   createdAt   DateTime      @default(now())
 
-  proofs      DisputeProof[]
+  proofs DisputeProof[]
 
   @@map("disputes")
 }
@@ -549,7 +559,7 @@ enum WithdrawalStatus {
 model WalletLedger {
   id          String          @id @default(uuid())
   walletId    String
-  wallet      Wallet          @relation(fields: [walletId], references: [userId], onDelete: Cascade)
+  wallet      Wallet          @relation(fields: [walletId], references: [id], onDelete: Cascade)
   amount      Decimal         @db.Decimal(12, 2)
   type        LedgerEntryType
   description String
@@ -562,7 +572,7 @@ model WalletLedger {
 model Escrow {
   id          String       @id @default(uuid())
   walletId    String
-  wallet      Wallet       @relation(fields: [walletId], references: [userId], onDelete: Cascade)
+  wallet      Wallet       @relation(fields: [walletId], references: [id], onDelete: Cascade)
   challengeId String
   amount      Decimal      @db.Decimal(12, 2)
   status      EscrowStatus @default(HELD)
@@ -577,9 +587,9 @@ model Payment {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   amount    Decimal  @db.Decimal(12, 2)
-  provider  String   
+  provider  String
   reference String   @unique
-  status    String   
+  status    String
   metadata  Json?
   createdAt DateTime @default(now())
 
@@ -591,7 +601,7 @@ model Withdrawal {
   userId        String
   user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   walletId      String
-  wallet        Wallet           @relation(fields: [walletId], references: [userId], onDelete: Cascade)
+  wallet        Wallet           @relation(fields: [walletId], references: [id], onDelete: Cascade)
   amount        Decimal          @db.Decimal(12, 2)
   bankCode      String
   accountNumber String
@@ -626,7 +636,7 @@ enum CallStatus {
   INITIATED
   ONGOING
   ENDED
-  MISSED 
+  MISSED
   REJECTED
 }
 
@@ -636,8 +646,8 @@ model Conversation {
   createdAt DateTime         @default(now())
   updatedAt DateTime         @updatedAt
 
-  members   ConversationMember[]
-  messages  Message[]
+  members  ConversationMember[]
+  messages Message[]
 
   @@map("conversations")
 }
@@ -655,18 +665,18 @@ model ConversationMember {
 }
 
 model Message {
-  id             String              @id @default(uuid())
+  id             String       @id @default(uuid())
   conversationId String
-  conversation   Conversation        @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   senderId       String
-  sender         User                @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
-  content        String?             @db.Text
-  type           MessageType         @default(TEXT)
-  createdAt      DateTime            @default(now())
+  sender         User         @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  content        String?      @db.Text
+  type           MessageType  @default(TEXT)
+  createdAt      DateTime     @default(now())
 
-  attachments    MessageAttachment[]
-  reactions      MessageReaction[]
-  reads          MessageRead[]
+  attachments MessageAttachment[]
+  reactions   MessageReaction[]
+  reads       MessageRead[]
 
   @@map("messages")
 }
@@ -708,13 +718,13 @@ model MessageRead {
 }
 
 model Call {
-  id          String     @id @default(uuid())
-  callerId    String
-  caller      User       @relation("InitiatedCalls", fields: [callerId], references: [id], onDelete: Cascade)
-  type        CallType   @default(AUDIO)
-  status      CallStatus @default(INITIATED)
-  startedAt   DateTime   @default(now())
-  endedAt     DateTime?
+  id        String     @id @default(uuid())
+  callerId  String
+  caller    User       @relation("InitiatedCalls", fields: [callerId], references: [id], onDelete: Cascade)
+  type      CallType   @default(AUDIO)
+  status    CallStatus @default(INITIATED)
+  startedAt DateTime   @default(now())
+  endedAt   DateTime?
 
   participants CallParticipant[]
 
@@ -748,21 +758,21 @@ enum NotificationType {
 }
 
 model Post {
-  id             String       @id @default(uuid())
-  authorId       String
-  author         User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  content        String?      @db.Text
-  mediaUrl       String?       
-  thumbnailUrl   String?       
-  privacy        PostPrivacy  @default(PUBLIC) 
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  id           String      @id @default(uuid())
+  authorId     String
+  author       User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  content      String?     @db.Text
+  mediaUrl     String?
+  thumbnailUrl String?
+  privacy      PostPrivacy @default(PUBLIC)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
 
-  media          PostMedia[]
-  likes          PostLike[]
-  comments       PostComment[]
-  shares         PostShare[]
-  reports        PostReport[]
+  media    PostMedia[]
+  likes    PostLike[]
+  comments PostComment[]
+  shares   PostShare[]
+  reports  PostReport[]
 
   @@map("posts")
 }
@@ -772,7 +782,7 @@ model PostMedia {
   postId    String
   post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   url       String
-  type      String   
+  type      String
   createdAt DateTime @default(now())
 
   @@map("post_media")
@@ -820,8 +830,8 @@ model PostReport {
   reason    String
   createdAt DateTime @default(now())
 
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   @@map("post_reports")
 }
@@ -847,7 +857,7 @@ model StatusMedia {
   statusId  String
   status    Status   @relation(fields: [statusId], references: [id], onDelete: Cascade)
   url       String
-  type      String   
+  type      String
   createdAt DateTime @default(now())
 
   @@map("status_media")
@@ -871,12 +881,12 @@ model StatusReaction {
   status    Status   @relation(fields: [statusId], references: [id], onDelete: Cascade)
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  emoji     String   
+  emoji     String
   createdAt DateTime @default(now())
 
   @@unique([statusId, userId])
   @@map("status_reactions")
-}  
+}
 
 model StatusReply {
   id        String   @id @default(uuid())
@@ -898,7 +908,7 @@ model Notification {
   message   String
   type      NotificationType
   isRead    Boolean          @default(false)
-  metadata  Json?    
+  metadata  Json?
   createdAt DateTime         @default(now())
 }
 
@@ -907,7 +917,7 @@ model DeviceToken {
   userId     String
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   token      String   @unique
-  deviceType String?  
+  deviceType String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }
@@ -939,16 +949,16 @@ enum ReportStatus {
 }
 
 model PlayerStats {
-  id          String   @id @default(uuid())
+  id          String @id @default(uuid())
   userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   gameId      String
-  game        Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
-  totalPlayed Int      @default(0)
-  wins        Int      @default(0)
-  losses      Int      @default(0)
-  winRate     Float    @default(0.0)
-  rating      Int      @default(1200)
+  game        Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  totalPlayed Int    @default(0)
+  wins        Int    @default(0)
+  losses      Int    @default(0)
+  winRate     Float  @default(0.0)
+  rating      Int    @default(1200)
 
   @@unique([userId, gameId])
   @@map("player_stats")
@@ -957,7 +967,7 @@ model PlayerStats {
 model Leaderboard {
   id        String   @id @default(uuid())
   gameId    String
-  period    String   
+  period    String
   rankings  Json
   updatedAt DateTime @updatedAt
 
@@ -965,15 +975,15 @@ model Leaderboard {
 }
 
 model Tournament {
-  id          String           @id @default(uuid())
-  gameId      String
-  game        Game             @relation(fields: [gameId], references: [id], onDelete: Cascade)
-  title       String
-  entryFee    Decimal          @db.Decimal(12, 2)
-  prizePool   Decimal          @db.Decimal(12, 2)
-  status      TournamentStatus @default(UPCOMING)
-  startDate   DateTime
-  createdAt   DateTime         @default(now())
+  id        String           @id @default(uuid())
+  gameId    String
+  game      Game             @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  title     String
+  entryFee  Decimal          @db.Decimal(12, 2)
+  prizePool Decimal          @db.Decimal(12, 2)
+  status    TournamentStatus @default(UPCOMING)
+  startDate DateTime
+  createdAt DateTime         @default(now())
 
   participants TournamentParticipant[]
   rounds       TournamentRound[]
@@ -1029,13 +1039,13 @@ model Report {
 }
 
 model ModerationAction {
-  id          String   @id @default(uuid())
-  moderatorId String
-  moderator   User     @relation("ModeratorActions", fields: [moderatorId], references: [id], onDelete: Cascade)
-  action      String   
+  id           String   @id @default(uuid())
+  moderatorId  String
+  moderator    User     @relation("ModeratorActions", fields: [moderatorId], references: [id], onDelete: Cascade)
+  action       String
   targetUserId String
-  reason      String
-  createdAt   DateTime @default(now())
+  reason       String
+  createdAt    DateTime @default(now())
 
   @@map("moderation_actions")
 }
@@ -1074,16 +1084,16 @@ model AuditLog {
 }
 
 model Ticket {
-  id           String         @id @default(uuid())
-  userId       String
-  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  subject      String
-  category     TicketCategory @default(GENERAL)
-  status       TicketStatus   @default(OPEN) 
-  priority     TicketPriority @default(MEDIUM) 
-  messages     TicketMessage[]
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+  id        String          @id @default(uuid())
+  userId    String
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject   String
+  category  TicketCategory  @default(GENERAL)
+  status    TicketStatus    @default(OPEN)
+  priority  TicketPriority  @default(MEDIUM)
+  messages  TicketMessage[]
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
 
   @@map("support_tickets_main")
 }
@@ -1092,9 +1102,9 @@ model TicketMessage {
   id          String   @id @default(uuid())
   ticketId    String
   ticket      Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
-  senderId    String   
+  senderId    String
   message     String
-  attachments String[] 
+  attachments String[]
   createdAt   DateTime @default(now())
 
   @@map("ticket_messages")
