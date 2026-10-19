@@ -136,7 +136,6 @@ model User {
   statuses      Status[]
   statusViews   StatusView[]
   statusReplies StatusReply[]
-  notifications Notification[]
 
   // Analytics, Support & Governance Relations
   playerStats          PlayerStats[]
@@ -282,7 +281,6 @@ model PlayerGame {
 }
 
 model Follow {
-  id          String   @id @default(uuid())
   followerId  String
   follower    User     @relation("UserFollowing", fields: [followerId], references: [id], onDelete: Cascade)
   followingId String
@@ -307,7 +305,6 @@ model FriendRequest {
 }
 
 model Block {
-  id          String   @id @default(uuid())
   blockerId String
   blocker   User     @relation("BlockedUsers", fields: [blockerId], references: [id], onDelete: Cascade)
   blockedId String
@@ -942,13 +939,6 @@ enum ReportStatus {
   REVIEWED
   RESOLVED
   DISMISSED
-}
-
-enum TicketStatus {
-  OPEN
-  IN_PROGRESS
-  RESOLVED
-  CLOSED
 }
 
 model PlayerStats {
