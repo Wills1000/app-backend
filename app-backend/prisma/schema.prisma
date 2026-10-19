@@ -73,42 +73,42 @@ enum AccountStatus {
 }
 
 model User {
-  id                 String        @id @default(uuid())
-  firebaseUid        String        @unique
-  email              String        @unique
-  accountStatus      AccountStatus @default(ACTIVE)
-  isVerified         Boolean       @default(false)
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
-  lastActiveAt       DateTime      @default(now())
-  notifications Notification[]
-  deviceTokens        DeviceToken[]
-  notificationPref    NotificationPreference?
-  stats  UserStats?
-  role           UserRole       @default(USER)
-  status         UserStatus     @default(ACTIVE)
-  moderationLogs ModerationLog[] @relation("TargetUserLogs")
-  adminLogs      ModerationLog[] @relation("AdminUserLogs")
+  id                   String        @id @default(uuid())
+  firebaseUid          String        @unique
+  email                String        @unique
+  accountStatus        AccountStatus @default(ACTIVE)
+  isVerified           Boolean       @default(false)
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+  lastActiveAt         DateTime      @default(now())
+  notifications        Notification[]
+  deviceTokens         DeviceToken[]
+  notificationPref     NotificationPreference?
+  stats                UserStats?
+  role                 UserRole      @default(USER)
+  status               UserStatus    @default(ACTIVE)
+  moderationLogs       ModerationLog[] @relation("TargetUserLogs")
+  adminLogs            ModerationLog[] @relation("AdminUserLogs")
 
-  profile          Profile?
-  wallet           Wallet?
-  hostedChallenges Challenge[]   @relation("HostedChallenges")
-  joinedChallenges Challenge[]   @relation("JoinedChallenges")
-  wonChallenges    Challenge[]   @relation("WonChallenges")
-  transactions     Transaction[]
-  postReports     PostReport[]
-  statusReactions StatusReaction[]
-  tickets         Ticket[]
+  profile              Profile?
+  wallet               Wallet?
+  hostedChallenges     Challenge[]   @relation("HostedChallenges")
+  joinedChallenges     Challenge[]   @relation("JoinedChallenges")
+  wonChallenges        Challenge[]   @relation("WonChallenges")
+  transactions         Transaction[]
+  postReports          PostReport[]
+  statusReactions      StatusReaction[]
+  tickets              Ticket[]
 
   // Social Relations
-  playerGames    PlayerGame[]
-  following      Follow[]        @relation("UserFollowing")
-  followers      Follow[]        @relation("UserFollowers")
-  sentRequests   FriendRequest[] @relation("SentFriendRequests")
-  recvRequests   FriendRequest[] @relation("ReceivedFriendRequests")
-  blockedUsers   Block[]         @relation("BlockedUsers")
-  blockedByUsers Block[]         @relation("BlockedByUsers")
-  userGames UserGame[]
+  playerGames          PlayerGame[]
+  following            Follow[]        @relation("UserFollowing")
+  followers            Follow[]        @relation("UserFollowers")
+  sentRequests         FriendRequest[] @relation("SentFriendRequests")
+  recvRequests         FriendRequest[] @relation("ReceivedFriendRequests")
+  blockedUsers         Block[]         @relation("BlockedUsers")
+  blockedByUsers       Block[]         @relation("BlockedByUsers")
+  userGames            UserGame[]
 
   // Matchmaking Relations
   challengeParticipants ChallengeParticipant[]
@@ -120,35 +120,35 @@ model User {
   waitingRooms          WaitingRoom[]
 
   // Financial Relations
-  payments    Payment[]
-  withdrawals Withdrawal[]
+  payments              Payment[]
+  withdrawals           Withdrawal[]
 
   // Chat & Call Relations
-  conversationMembers ConversationMember[]
-  sentMessages        Message[]            @relation("SentMessages")
-  messageReactions    MessageReaction[]
-  messageReads        MessageRead[]
-  initiatedCalls      Call[]               @relation("InitiatedCalls")
-  callParticipants    CallParticipant[]
+  conversationMembers   ConversationMember[]
+  sentMessages          Message[]             @relation("SentMessages")
+  messageReactions      MessageReaction[]
+  messageReads          MessageRead[]
+  initiatedCalls        Call[]                @relation("InitiatedCalls")
+  callParticipants      CallParticipant[]
 
   // Feed & Notification Relations
-  posts         Post[]
-  postLikes     PostLike[]
-  postComments  PostComment[]
-  postShares    PostShare[]
-  statuses      Status[]
-  statusViews   StatusView[]
-  statusReplies StatusReply[]
+  posts                 Post[]
+  postLikes             PostLike[]
+  postComments          PostComment[]
+  postShares            PostShare[]
+  statuses              Status[]
+  statusViews           StatusView[]
+  statusReplies         StatusReply[]
 
   // Analytics, Support & Governance Relations
-  playerStats          PlayerStats[]
-  tournament           TournamentParticipant[]
-  reportsSubmitted     Report[]                @relation("ReportsSubmitted")
-  reportsReceived      Report[]                @relation("ReportsReceived")
-  moderationActions    ModerationAction[]      @relation("ModeratorActions")
-  searchHistory        SearchHistory[]
-  supportTickets       SupportTicket[]
-  auditLogs            AuditLog[] 
+  playerStats           PlayerStats[]
+  tournament            TournamentParticipant[]
+  reportsSubmitted      Report[]                @relation("ReportsSubmitted")
+  reportsReceived       Report[]                @relation("ReportsReceived")
+  moderationActions     ModerationAction[]      @relation("ModeratorActions")
+  searchHistory         SearchHistory[]
+  supportTickets        SupportTicket[]
+  auditLogs             AuditLog[]  
 
   @@map("users")
 }
@@ -173,18 +173,14 @@ model Profile {
   gender            Gender?
   dateOfBirth       DateTime?
   
-  // Gaming Identifiers (Stored as JSON for dynamic platform IDs)
-  // e.g., { "psn": "GamerX", "xbox": "GamerX99", "cod": "Gamer#1234" }
   gamingIds         Json      @default("{}")
   
-  // Profile Statistics
   matchesPlayed     Int       @default(0)
   matchesWon        Int       @default(0)
   matchesLost       Int       @default(0)
   winRate           Float     @default(0.0)
   totalEarnings     Float     @default(0.0)
   
-  // Verification & Settings
   isVerified        Boolean   @default(false)
   isPrivate         Boolean   @default(false)
   
@@ -200,34 +196,33 @@ enum GameStatus {
 }
 
 model Game { 
-  id           String        @id @default(uuid())
-  title        String        @unique
-  slug         String        @unique
-  imageUrl     String?       // Kept from your existing schema
-  iconUrl      String?       // Added from your snippet
-  bannerUrl    String?       // Added from your snippet
-  description  String?       // Added from your snippet
-  isActive     Boolean       @default(true)
-  status       GameStatus    @default(ACTIVE) // Added from your snippet
+  id            String        @id @default(uuid())
+  title         String        @unique
+  slug          String        @unique
+  imageUrl      String?       
+  iconUrl       String?       
+  bannerUrl     String?       
+  description   String?       
+  isActive      Boolean       @default(true)
+  status        GameStatus    @default(ACTIVE) 
 
-  // Relations from both sides
-  modes        GameMode[]
-  challenges   Challenge[]
-  playerGames  PlayerGame[]  // Existing relation
-  userGames    UserGame[]    // Added from your snippet (IGNs)
-  waitingRooms WaitingRoom[]
-  tournaments  Tournament[]
-  playerStats  PlayerStats[]
+  modes         GameMode[]
+  challenges    Challenge[]
+  playerGames   PlayerGame[]  
+  userGames     UserGame[]    
+  waitingRooms  WaitingRoom[]
+  tournaments   Tournament[]
+  playerStats   PlayerStats[]
 
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 
   @@map("games")
 }
 
 model GameMode {
   id          String   @id @default(uuid())
-  name        String   // e.g., "Battle Royale", "1v1 Duel"
+  name        String   
   description String?
   gameId      String
   game        Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
@@ -242,7 +237,7 @@ model UserGame {
   id        String   @id @default(uuid())
   userId    String
   gameId    String
-  ign       String   // In-Game Name / Specific ID (e.g., "Princewill#1234")
+  ign       String   
   
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   game      Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
@@ -261,11 +256,11 @@ model UserStats {
   gamesPlayed   Int      @default(0)
   wins          Int      @default(0)
   losses        Int      @default(0)
-  winRate       Float    @default(0.0) // Stored as a percentage (0 - 100)
-  rating        Float    @default(1000.0) // Elo or skill rating
+  winRate       Float    @default(0.0) 
+  rating        Float    @default(1000.0) 
   totalEarnings Float    @default(0.0)
-  region        String?  // e.g., "Rivers", "Lagos", etc.
-  gameType      String?  // Optional game category filter
+  region        String?  
+  gameType      String?  
   updatedAt     DateTime @updatedAt
 }
 
@@ -275,7 +270,7 @@ model PlayerGame {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   gameId    String
   game      Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
-  inGameId  String   // Gamer Tag / IGN / In-Game ID
+  inGameId  String   
   rank      String?
   createdAt DateTime @default(now())
 
@@ -319,14 +314,14 @@ model Block {
 }
 
 model ModerationLog {
-  id          String   @id @default(uuid())
-  adminId     String
-  admin       User     @relation("AdminUserLogs", fields: [adminId], references: [id])
+  id           String   @id @default(uuid())
+  adminId      String
+  admin        User     @relation("AdminUserLogs", fields: [adminId], references: [id])
   targetUserId String?
-  targetUser  User?    @relation("TargetUserLogs", fields: [targetUserId], references: [id], onDelete: SetNull)
-  action      String   // e.g., "BAN_USER", "SUSPEND_USER", "REMOVE_POST", "RESOLVE_DISPUTE"
-  reason      String
-  createdAt   DateTime @default(now())
+  targetUser   User?    @relation("TargetUserLogs", fields: [targetUserId], references: [id], onDelete: SetNull)
+  action       String   
+  reason       String
+  createdAt    DateTime @default(now())
 
   @@map("moderation_logs")
 }
@@ -345,42 +340,42 @@ enum UserStatus {
 }
 
 model Wallet {
-  id              String        @id @default(uuid())
-  userId          String        @unique
-  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  balance         Float         @default(0.0) // Total/Deposit balance
-  lockedBalance   Float         @default(0.0) // Balance locked in escrow for active challenges
-  coinBalance     Float         @default(0.0) // Platform coin balance
-  coinRate        Float         @default(1.0) // Exchange rate for coins to fiat/currency
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  id             String        @id @default(uuid())
+  userId         String        @unique
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  balance        Float         @default(0.0) 
+  lockedBalance  Float         @default(0.0) 
+  coinBalance    Float         @default(0.0) 
+  coinRate       Float         @default(1.0) 
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 
-  transactions    Transaction[]
+  transactions   Transaction[]
 
   @@map("wallets")
 } 
 
 model CoinRate {
-  id          String   @id @default(uuid())
-  rate        Float    // e.g., 1 Coin = X NGN
-  isActive    Boolean  @default(true)
-  updatedBy   String   // Admin user ID who set the rate
-  createdAt   DateTime @default(now())
+  id        String   @id @default(uuid())
+  rate      Float    
+  isActive  Boolean  @default(true)
+  updatedBy String   
+  createdAt DateTime @default(now())
 }
 
 model Challenge {
-  id           String                 @id @default(uuid())
+  id           String             @id @default(uuid())
   hostId       String
-  host         User                   @relation("HostedChallenges", fields: [hostId], references: [id])
+  host         User               @relation("HostedChallenges", fields: [hostId], references: [id])
   opponentId   String?
-  opponent     User?                  @relation("JoinedChallenges", fields: [opponentId], references: [id])
+  opponent     User?              @relation("JoinedChallenges", fields: [opponentId], references: [id])
   gameId       String
-  game         Game                   @relation(fields: [gameId], references: [id])
-  stakeAmount  Decimal                @db.Decimal(12, 2)
-  status       ChallengeStatus        @default(OPEN)
+  game         Game               @relation(fields: [gameId], references: [id])
+  stakeAmount  Decimal            @db.Decimal(12, 2)
+  status       ChallengeStatus    @default(OPEN)
   winnerId     String?
-  winner       User?                  @relation("WonChallenges", fields: [winnerId], references: [id])
-  createdAt    DateTime               @default(now())
+  winner       User?              @relation("WonChallenges", fields: [winnerId], references: [id])
+  createdAt    DateTime           @default(now())
 
   participants ChallengeParticipant[]
   acceptances  ChallengeAcceptance[]
@@ -399,10 +394,10 @@ model Transaction {
   amount        Float
   balanceBefore Float
   balanceAfter  Float
-  reference     String            @unique // Ledger reference ID
+  reference     String            @unique 
   status        TransactionStatus @default(SUCCESS)
-  metadata      Json?             // Audit trail metadata (e.g., challengeId, adminNote)
-  createdAt     DateTime          @default(now()) // Immutable timestamp
+  metadata      Json?             
+  createdAt     DateTime          @default(now()) 
 
   @@index([walletId])
   @@index([reference])
@@ -469,14 +464,14 @@ model ChallengeInvite {
 }
  
 model WaitingRoom {
-  id              String   @id @default(cuid())
-  challengeId     String   @unique
-  challenge       Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
-  roomCode        String?  
-  hostReady       Boolean  @default(false)
-  opponentReady   Boolean  @default(false)
-  expiresAt       DateTime 
-  createdAt       DateTime @default(now())
+  id             String    @id @default(cuid())
+  challengeId    String    @unique
+  challenge      Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  roomCode       String?  
+  hostReady      Boolean   @default(false)
+  opponentReady  Boolean   @default(false)
+  expiresAt      DateTime 
+  createdAt      DateTime  @default(now())
 }
 
 model ChallengeResult {
@@ -489,7 +484,7 @@ model ChallengeResult {
   playerScore     Int          @default(0)
   opponentScore   Int          @default(0)
   status          ResultStatus @default(PENDING)
-  deadlineAt      DateTime?    // Deadline for opponent confirmation/counter-submission
+  deadlineAt      DateTime?    
   createdAt       DateTime     @default(now())
 
   proofs          ResultProof[]
@@ -498,12 +493,12 @@ model ChallengeResult {
 }
 
 model ResultProof {
-  id          String          @id @default(uuid())
-  resultId    String
-  result      ChallengeResult @relation(fields: [resultId], references: [id], onDelete: Cascade)
-  mediaUrl    String          // URL for screenshot or video proof upload
-  type        String?         // Optional: "SCREENSHOT" or "VIDEO"
-  createdAt   DateTime        @default(now())
+  id        String          @id @default(uuid())
+  resultId  String
+  result    ChallengeResult @relation(fields: [resultId], references: [id], onDelete: Cascade)
+  mediaUrl  String          
+  type      String?         
+  createdAt DateTime        @default(now())
 
   @@map("result_proofs")
 }
@@ -578,15 +573,15 @@ model Escrow {
 }
 
 model Payment {
-  id          String   @id @default(uuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  amount      Decimal  @db.Decimal(12, 2)
-  provider    String   // Paystack, Flutterwave, etc.
-  reference   String   @unique
-  status      String   // success, failed, pending
-  metadata    Json?
-  createdAt   DateTime @default(now())
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount    Decimal  @db.Decimal(12, 2)
+  provider  String   
+  reference String   @unique
+  status    String   
+  metadata  Json?
+  createdAt DateTime @default(now())
 
   @@map("payments")
 }
@@ -636,10 +631,10 @@ enum CallStatus {
 }
 
 model Conversation {
-  id        String             @id @default(uuid())
-  type      ConversationType   @default(DIRECT)
-  createdAt DateTime           @default(now())
-  updatedAt DateTime           @updatedAt
+  id        String           @id @default(uuid())
+  type      ConversationType @default(DIRECT)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
 
   members   ConversationMember[]
   messages  Message[]
@@ -713,12 +708,12 @@ model MessageRead {
 }
 
 model Call {
-  id          String            @id @default(uuid())
+  id          String     @id @default(uuid())
   callerId    String
-  caller      User              @relation("InitiatedCalls", fields: [callerId], references: [id], onDelete: Cascade)
-  type        CallType          @default(AUDIO)
-  status      CallStatus        @default(INITIATED)
-  startedAt   DateTime          @default(now())
+  caller      User       @relation("InitiatedCalls", fields: [callerId], references: [id], onDelete: Cascade)
+  type        CallType   @default(AUDIO)
+  status      CallStatus @default(INITIATED)
+  startedAt   DateTime   @default(now())
   endedAt     DateTime?
 
   participants CallParticipant[]
@@ -727,12 +722,12 @@ model Call {
 }
 
 model CallParticipant {
-  id        String   @id @default(uuid())
-  callId    String
-  call      Call     @relation(fields: [callId], references: [id], onDelete: Cascade)
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  joinedAt  DateTime @default(now())
+  id       String   @id @default(uuid())
+  callId   String
+  call     Call     @relation(fields: [callId], references: [id], onDelete: Cascade)
+  userId   String
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  joinedAt DateTime @default(now())
 
   @@unique([callId, userId])
   @@map("call_participants")
@@ -750,25 +745,24 @@ enum NotificationType {
   MESSAGE
   WALLET
   DISPUTE
-
 }
 
 model Post {
-  id        String   @id @default(uuid())
-  authorId  String
-  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  content   String?  @db.Text
-  mediaUrl     String?       // Added from your snippet
-  thumbnailUrl String?       // Added from your snippet
-  privacy      PostPrivacy   @default(PUBLIC) // Added from your snippet
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id             String       @id @default(uuid())
+  authorId       String
+  author         User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  content        String?      @db.Text
+  mediaUrl       String?       
+  thumbnailUrl   String?       
+  privacy        PostPrivacy  @default(PUBLIC) 
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
 
-  media     PostMedia[]
-  likes     PostLike[]
-  comments  PostComment[]
-  shares    PostShare[]
-  reports   PostReport[]
+  media          PostMedia[]
+  likes          PostLike[]
+  comments       PostComment[]
+  shares         PostShare[]
+  reports        PostReport[]
 
   @@map("posts")
 }
@@ -778,7 +772,7 @@ model PostMedia {
   postId    String
   post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   url       String
-  type      String   // IMAGE or VIDEO
+  type      String   
   createdAt DateTime @default(now())
 
   @@map("post_media")
@@ -853,19 +847,19 @@ model StatusMedia {
   statusId  String
   status    Status   @relation(fields: [statusId], references: [id], onDelete: Cascade)
   url       String
-  type      String   // IMAGE or VIDEO
+  type      String   
   createdAt DateTime @default(now())
 
   @@map("status_media")
 }
 
 model StatusView {
-  id        String   @id @default(uuid())
-  statusId  String
-  status    Status   @relation(fields: [statusId], references: [id], onDelete: Cascade)
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  viewedAt  DateTime @default(now())
+  id       String   @id @default(uuid())
+  statusId String
+  status   Status   @relation(fields: [statusId], references: [id], onDelete: Cascade)
+  userId   String
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  viewedAt DateTime @default(now())
 
   @@unique([statusId, userId])
   @@map("status_views")
@@ -897,15 +891,15 @@ model StatusReply {
 }
 
 model Notification {
-  id        String   @id @default(uuid())
+  id        String           @id @default(uuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   title     String
   message   String
   type      NotificationType
-  isRead    Boolean  @default(false)
-  metadata  Json?    // Optional extra payload (e.g., challengeId, transactionRef)
-  createdAt DateTime @default(now())
+  isRead    Boolean          @default(false)
+  metadata  Json?    
+  createdAt DateTime         @default(now())
 }
 
 model DeviceToken {
@@ -913,21 +907,21 @@ model DeviceToken {
   userId     String
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   token      String   @unique
-  deviceType String?  // 'android' | 'ios' | 'web'
+  deviceType String?  
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }
 
 model NotificationPreference {
-  id             String   @id @default(uuid())
-  userId         String   @unique
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  challenges     Boolean  @default(true)
-  walletUpdates  Boolean  @default(true)
-  withdrawals    Boolean  @default(true)
-  messages       Boolean  @default(true)
-  marketing      Boolean  @default(false)
-  updatedAt      DateTime @updatedAt
+  id            String   @id @default(uuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  challenges    Boolean  @default(true)
+  walletUpdates Boolean  @default(true)
+  withdrawals   Boolean  @default(true)
+  messages      Boolean  @default(true)
+  marketing     Boolean  @default(false)
+  updatedAt     DateTime @updatedAt
 }
 
 enum TournamentStatus {
@@ -963,7 +957,7 @@ model PlayerStats {
 model Leaderboard {
   id        String   @id @default(uuid())
   gameId    String
-  period    String   // DAILY, WEEKLY, MONTHLY, ALL_TIME
+  period    String   
   rankings  Json
   updatedAt DateTime @updatedAt
 
@@ -1022,14 +1016,14 @@ model TournamentMatch {
 }
 
 model Report {
-  id          String       @id @default(uuid())
-  reporterId  String
-  reporter    User         @relation("ReportsSubmitted", fields: [reporterId], references: [id], onDelete: Cascade)
+  id           String       @id @default(uuid())
+  reporterId   String
+  reporter     User         @relation("ReportsSubmitted", fields: [reporterId], references: [id], onDelete: Cascade)
   targetUserId String?
-  targetUser  User?        @relation("ReportsReceived", fields: [targetUserId], references: [id], onDelete: SetNull)
-  reason      String
-  status      ReportStatus @default(PENDING)
-  createdAt   DateTime     @default(now())
+  targetUser   User?        @relation("ReportsReceived", fields: [targetUserId], references: [id], onDelete: SetNull)
+  reason       String
+  status       ReportStatus @default(PENDING)
+  createdAt    DateTime     @default(now())
 
   @@map("reports")
 }
@@ -1038,7 +1032,7 @@ model ModerationAction {
   id          String   @id @default(uuid())
   moderatorId String
   moderator   User     @relation("ModeratorActions", fields: [moderatorId], references: [id], onDelete: Cascade)
-  action      String   // BAN, MUTE, WARN
+  action      String   
   targetUserId String
   reason      String
   createdAt   DateTime @default(now())
@@ -1057,13 +1051,13 @@ model SearchHistory {
 }
 
 model SupportTicket {
-  id          String       @id @default(uuid())
-  userId      String
-  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  subject     String
-  message     String       @db.Text
-  status      TicketStatus @default(OPEN)
-  createdAt   DateTime     @default(now())
+  id        String       @id @default(uuid())
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject   String
+  message   String       @db.Text
+  status    TicketStatus @default(OPEN)
+  createdAt DateTime     @default(now())
 
   @@map("support_ticket_records")
 }
@@ -1085,33 +1079,33 @@ model Ticket {
   user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   subject      String
   category     TicketCategory @default(GENERAL)
-  status       TicketStatus   @default(OPEN) // OPEN, IN_PROGRESS, RESOLVED, CLOSED
-  priority     TicketPriority @default(MEDIUM) // LOW, MEDIUM, HIGH, URGENT
+  status       TicketStatus   @default(OPEN) 
+  priority     TicketPriority @default(MEDIUM) 
   messages     TicketMessage[]
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
 
-  @@map("support_tickets")
+  @@map("support_tickets_main")
 }
 
 model TicketMessage {
-  id          String       @id @default(uuid())
+  id          String   @id @default(uuid())
   ticketId    String
-  ticket      Ticket       @relation(fields: [ticketId], references: [id], onDelete: Cascade)
-  senderId    String       // Can be User or Admin ID
+  ticket      Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  senderId    String   
   message     String
-  attachments String[]     // URLs or file paths
-  createdAt   DateTime     @default(now())
+  attachments String[] 
+  createdAt   DateTime @default(now())
 
   @@map("ticket_messages")
 }
 
 model FAQ {
-  id          String   @id @default(uuid())
-  question    String
-  answer      String
-  category    String   @default("General")
-  createdAt   DateTime @default(now())
+  id        String   @id @default(uuid())
+  question  String
+  answer    String
+  category  String   @default("General")
+  createdAt DateTime @default(now())
 
   @@map("faqs")
 }
