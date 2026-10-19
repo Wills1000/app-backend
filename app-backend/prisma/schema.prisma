@@ -96,7 +96,6 @@ model User {
   joinedChallenges Challenge[]   @relation("JoinedChallenges")
   wonChallenges    Challenge[]   @relation("WonChallenges")
   transactions     Transaction[]
-  withdrawals     Withdrawal[]
   postReports     PostReport[]
   statusReactions StatusReaction[]
   tickets         Ticket[]
