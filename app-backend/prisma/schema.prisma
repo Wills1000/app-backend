@@ -96,6 +96,10 @@ model User {
   joinedChallenges Challenge[]   @relation("JoinedChallenges")
   wonChallenges    Challenge[]   @relation("WonChallenges")
   transactions     Transaction[]
+  withdrawals     Withdrawal[]
+  postReports     PostReport[]
+  statusReactions StatusReaction[]
+  tickets         Ticket[]
 
   // Social Relations
   playerGames    PlayerGame[]
@@ -1054,15 +1058,15 @@ model SearchHistory {
 }
 
 model SupportTicket {
-  id        String       @id @default(uuid())
-  userId    String
-  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  subject   String
-  message   String       @db.Text
-  status    TicketStatus @default(OPEN)
-  createdAt DateTime     @default(now())
+  id          String       @id @default(uuid())
+  userId      String
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject     String
+  message     String       @db.Text
+  status      TicketStatus @default(OPEN)
+  createdAt   DateTime     @default(now())
 
-  @@map("support_tickets")
+  @@map("support_ticket_records")
 }
 
 model AuditLog {
