@@ -58,12 +58,14 @@ enum TransactionType {
   PLATFORM_FEE
   BONUS
   ADJUSTMENT
+  WAGER_ESCROW
 }
 
 enum TransactionStatus {
   PENDING
   SUCCESS
   FAILED
+  COMPLETED
 }
 
 enum AccountStatus {
@@ -344,6 +346,7 @@ model Wallet {
   userId        String   @unique
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   balance       Float    @default(0.0)
+  availableBalance Float         @default(0.0)
   lockedBalance Float    @default(0.0)
   coinBalance   Float    @default(0.0)
   coinRate      Float    @default(1.0)
