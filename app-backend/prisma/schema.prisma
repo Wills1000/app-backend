@@ -342,16 +342,16 @@ enum UserStatus {
 }
 
 model Wallet {
-  id            String   @id @default(uuid())
-  userId        String   @unique
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  balance       Float    @default(0.0)
-  availableBalance Float         @default(0.0)
-  lockedBalance Float    @default(0.0)
-  coinBalance   Float    @default(0.0)
-  coinRate      Float    @default(1.0)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id               String   @id @default(uuid())
+  userId           String   @unique
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  balance          Decimal  @default(0) @db.Decimal(12, 2)
+  availableBalance Decimal  @default(0) @db.Decimal(12, 2)
+  lockedBalance    Decimal  @default(0) @db.Decimal(12, 2)
+  coinBalance      Float    @default(0.0)
+  coinRate         Float    @default(1.0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   transactions Transaction[]
   WalletLedger WalletLedger[]
@@ -398,9 +398,9 @@ model Transaction {
   walletId      String
   wallet        Wallet            @relation(fields: [walletId], references: [id], onDelete: Cascade)
   type          TransactionType
-  amount        Float
-  balanceBefore Float
-  balanceAfter  Float
+  amount        Decimal @db.Decimal(12, 2)
+  balanceBefore Decimal @db.Decimal(12, 2)
+  balanceAfter  Decimal @db.Decimal(12, 2)
   reference     String            @unique
   status        TransactionStatus @default(SUCCESS)
   metadata      Json?
