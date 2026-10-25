@@ -18,6 +18,10 @@ const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
 if (!getApps().length) {
   initializeApp({
     credential: cert(serviceAccount),
+    // Set FIREBASE_STORAGE_BUCKET to the exact bucket name shown in Firebase Console > Storage.
+    storageBucket:
+      process.env.FIREBASE_STORAGE_BUCKET ||
+      `${serviceAccount.project_id}.appspot.com`,
   });
 }
  
