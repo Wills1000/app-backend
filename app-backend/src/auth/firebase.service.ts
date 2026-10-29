@@ -1,38 +1,15 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
-import * as path from 'path';
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const admin = require('firebase-admin');
-const { cert, getApp } = require('firebase-admin/app');
+import { Injectable } from '@nestjs/common';
+import { getAuth } from 'firebase-admin/auth';
+// Firebase is initialized once, in firebase.config.ts. Importing it here makes sure that has run.
+import '../firebase.config';
 
 @Injectable()
-export class FirebaseService implements OnModuleInit {
-  onModuleInit() {
-    const appInstance = admin.default || admin;
-    
-    if (!appInstance.apps || appInstance.apps.length === 0) {
-      try {
-        const serviceAccount = path.resolve(
-          process.cwd(),
-          'firebase-service-account.json',
-        );
-
-        appInstance.initializeApp({
-          credential: cert(serviceAccount),
-        });
-      } catch (error) {
-        getApp();
-      }
-    }
-  }
-
+export class FirebaseService {
   async verifyToken(idToken: string): Promise<any> {
-    const appInstance = admin.default || admin;
-    return appInstance.auth().verifyIdToken(idToken);
+    return getAuth().verifyIdToken(idToken);
   }
 
   async deleteUser(uid: string): Promise<void> {
-    const appInstance = admin.default || admin;
-    await appInstance.auth().deleteUser(uid);
+    await getAuth().deleteUser(uid);
   }
 }
