@@ -1,28 +1,30 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { FirebaseService } from './firebase.service';
-
+ 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+ 
   constructor(
     private prisma: PrismaService,
     private firebaseService: FirebaseService,
   ) {}
-
+ 
   async validateAndSyncUser(idToken: string) {
     try {
       const decodedToken = await this.firebaseService.verifyToken(idToken);
       const { uid, email } = decodedToken;
-
+ 
       if (!email) {
         throw new UnauthorizedException('Firebase user missing email scope.');
       }
-
+ 
       let user = await this.prisma.user.findUnique({
         where: { email },
         include: { profile: true, wallet: true },
       });
-
+ 
       if (!user) {
         const defaultUsername = email.split('@')[0] + '_' + uid.slice(0, 5);
         user = await this.prisma.user.create({
@@ -43,15 +45,21 @@ export class AuthService {
           include: { profile: true, wallet: true },
         });
       }
-
+ 
       return user;
     } catch (error) {
+      // Log the real reason so it shows up in the Render logs (search for "SYNC ERROR")
+      this.logger.error(
+        `SYNC ERROR: ${(error as any)?.message ?? error}`,
+        (error as any)?.stack,
+      );
       throw new UnauthorizedException('Invalid or expired Firebase token');
     }
   }
-
+ 
   async deleteAccount(userId: string, firebaseUid: string) {
     await this.firebaseService.deleteUser(firebaseUid);
     return this.prisma.user.delete({ where: { id: userId } });
   }
 }
+ 

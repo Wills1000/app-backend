@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "956861227457",
+    "project_id": "gamer-app-deb5e",
+    "storage_bucket": "gamer-app-deb5e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:956861227457:android:57c191ea924df44e9a4f40",
+        "android_client_info": {
+          "package_name": "com.example.gamer_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCvxXrz9xhJZPbVnMTfED_5I7wJE8-vaTU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

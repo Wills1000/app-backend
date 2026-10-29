@@ -1,88 +1,81 @@
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:dio/dio.dart'; // Make sure Dio package is imported for Options if needed
 import '../../../../core/network/dio_client.dart';
 
 class AuthRepository {
   final DioClient dioClient;
-  final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   AuthRepository(this.dioClient);
 
-  // Sync or Login user with the backend
+  // Tells the backend about the signed-in Firebase user and passes user data
+  Future<bool> _syncWithBackend({Map<String, dynamic>? extraData}) async {
+    // 1. Explicitly grab a fresh Firebase ID token to prevent 401 errors
+    final user = _auth.currentUser;
+    final token = await user?.getIdToken(true);
+
+    // 2. Send the request with the explicit Bearer token and payload data
+    final response = await dioClient.dio.post(
+      'auth/sync',
+      data: extraData ?? {},
+      options: Options(
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      ),
+    );
+    
+    return response.statusCode == 200 || response.statusCode == 201;
+  }
+
+  // Log in with email + password, then sync with backend
   Future<bool> authenticateUser(String identifier, String password) async {
     try {
-      final response = await dioClient.dio.post(
-        'auth/sync', 
-        data: {
-          'identifier': identifier,
-          'password': password,
-        },
+      await _auth.signInWithEmailAndPassword(
+        email: identifier,
+        password: password,
       );
-
-      // Check if the backend returned a token
-      if (response.data != null && response.data['token'] != null) {
-        String token = response.data['token'];
-        
-        // Securely store the JWT token for future requests
-        await secureStorage.write(key: 'jwt_token', value: token);
-        print('--> Auth Success! Token saved.');
-        return true;
-      }
-      return false;
+      return await _syncWithBackend();
+    } on FirebaseAuthException catch (e) {
+      throw Exception('Authentication failed: ${e.message ?? e.code}');
     } catch (e) {
-      print('--> Auth Error: $e');
       throw Exception('Authentication failed: $e');
     }
   }
 
-  // Register or sign up a new user via the auth/sync endpoint
+  // Sign up: create the user in Firebase first, then sync with backend & username
   Future<bool> registerUser({
     required String email,
     required String password,
     String? username,
   }) async {
     try {
-      // Corrected to use relative path matching your Dio baseUrl
-      final response = await dioClient.dio.post(
-        'auth/sync', 
-        data: {
-          'email': email,
-          'password': password,
-          'username': username ?? email.split('@')[0],
-        },
+      await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
       );
-
-      if (response.data != null && response.data['token'] != null) {
-        String token = response.data['token'];
-        await secureStorage.write(key: 'jwt_token', value: token);
-        print('--> Signup Success! Token saved.');
-        return true;
-      }
-      return false;
+      
+      // Pass the username and email to your backend sync route
+      return await _syncWithBackend(extraData: {
+        'username': username,
+        'email': email,
+      });
+    } on FirebaseAuthException catch (e) {
+      throw Exception('Registration failed: ${e.message ?? e.code}');
     } catch (e) {
-      print('--> Signup Error: $e');
       throw Exception('Registration failed: $e');
     }
   }
-  
-  // Handle Google Sign-In/Sync via backend
+
+  // Google sign-in: pass the Google idToken, sign in to Firebase, then sync
   Future<bool> googleAuth(String idToken) async {
     try {
-      final response = await dioClient.dio.post(
-        'auth/sync',
-        data: {
-          'idToken': idToken,
-        },
-      );
-
-      if (response.data != null && response.data['token'] != null) {
-        String token = response.data['token'];
-        await secureStorage.write(key: 'jwt_token', value: token);
-        print('--> Google Auth Success! Token saved.');
-        return true;
-      }
-      return false;
+      final credential = GoogleAuthProvider.credential(idToken: idToken);
+      await _auth.signInWithCredential(credential);
+      return await _syncWithBackend();
+    } on FirebaseAuthException catch (e) {
+      throw Exception('Google authentication failed: ${e.message ?? e.code}');
     } catch (e) {
-      print('--> Google Auth Error: $e');
       throw Exception('Google authentication failed: $e');
     }
   }

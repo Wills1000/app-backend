@@ -1,16 +1,15 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class DioClient {
   late final Dio dio;
-  final FlutterSecureStorage secureStorage = FlutterSecureStorage();
 
   DioClient() {
     dio = Dio(
       BaseOptions(
-        baseUrl: 'http://10.178.45.9:3000/', 
-        connectTimeout: const Duration(seconds: 15),
-        receiveTimeout: const Duration(seconds: 15),
+        baseUrl: 'https://app-backend-e4an.onrender.com/api/v1/',
+        connectTimeout: const Duration(seconds: 60),
+        receiveTimeout: const Duration(seconds: 60),
         headers: {'Content-Type': 'application/json'},
       ),
     );
@@ -18,17 +17,16 @@ class DioClient {
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-          // Automatically attach JWT token if present
-          final token = await secureStorage.read(key: 'jwt_token');
+          final user = FirebaseAuth.instance.currentUser;
+          final token = await user?.getIdToken();
           if (token != null) {
             options.headers['Authorization'] = 'Bearer $token';
           }
           return handler.next(options);
         },
         onError: (DioException error, handler) {
-          // Handle global network errors or token expiration
           if (error.response?.statusCode == 401) {
-            // Trigger logout or token refresh logic
+            // Token invalid or expired: trigger logout here if needed.
           }
           return handler.next(error);
         },
