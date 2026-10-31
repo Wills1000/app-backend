@@ -1,0 +1,20 @@
+// 1) Inside your existing "model User { ... }", add this ONE line
+//    (for example right under the line "wallet           Wallet?"):
+
+  emailVerification EmailVerification?
+
+
+// 2) Add this NEW model anywhere else in schema.prisma (for example at the very bottom):
+
+model EmailVerification {
+  id         String   @id @default(uuid())
+  userId     String   @unique
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  codeHash   String
+  expiresAt  DateTime
+  attempts   Int      @default(0)
+  lastSentAt DateTime
+  createdAt  DateTime @default(now())
+
+  @@map("email_verifications")
+}

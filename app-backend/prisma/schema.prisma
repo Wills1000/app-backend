@@ -91,6 +91,7 @@ model User {
   status           UserStatus              @default(ACTIVE)
   moderationLogs   ModerationLog[]         @relation("TargetUserLogs")
   adminLogs        ModerationLog[]         @relation("AdminUserLogs")
+  emailVerification EmailVerification?
 
   profile          Profile?
   wallet           Wallet?
@@ -1144,4 +1145,17 @@ enum TicketPriority {
   MEDIUM
   HIGH
   URGENT
+}
+
+model EmailVerification {
+  id         String   @id @default(uuid())
+  userId     String   @unique
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  codeHash   String
+  expiresAt  DateTime
+  attempts   Int      @default(0)
+  lastSentAt DateTime
+  createdAt  DateTime @default(now())
+
+  @@map("email_verifications")
 }
