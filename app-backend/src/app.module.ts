@@ -37,9 +37,10 @@ import { SupportModule } from './support/support.module';
 import { HealthModule } from './health/health.module';
 import { StorageModule } from './storage/storage.module';
 import { StatusModule } from './status/status.module';
-
+import { MeModule } from './me/me.module';
+ 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
-
+ 
 @Module({
   imports: [
     // Distributed tracing, auto-correlated logs, request/job metrics, error
@@ -84,8 +85,10 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
     HealthModule,
     StorageModule,
     StatusModule,
+    MeModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
+ 
