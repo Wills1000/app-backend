@@ -49,18 +49,81 @@ class AuthRepository {
     }
   }
  
-  // Sign up: create the user in Firebase first, then sync with backend
+  // Checks (before creating the account) that the username and phone number
+  // are valid and not already used
+  Future<void> _ensureDetailsAvailable(String username, String phone) async {
+    try {
+      final res = await dioClient.dio.get(
+        'auth/username-available',
+        queryParameters: {
+          'username': username,
+          if (phone.isNotEmpty) 'phone': phone,
+        },
+      );
+ 
+      if (_find(res.data, 'available') != true) {
+        final msg = _find(res.data, 'message');
+        throw VerificationException(
+          msg is String ? msg : 'That username or phone number is already used',
+        );
+      }
+    } on DioException {
+      throw VerificationException(
+        'Could not check your details. Please check your connection and try again.',
+      );
+    }
+  }
+ 
+  // Saves the username chosen at signup to the new profile
+  Future<void> _saveUsername(String username) async {
+    try {
+      await dioClient.dio.patch('me/profile', data: {'username': username});
+    } on DioException {
+      // Very rare (someone took it a second ago): keep the generated username
+    }
+  }
+ 
+  // Saves the phone number entered at signup
+  Future<void> _savePhone(String phone) async {
+    try {
+      await dioClient.dio.patch('me/phone', data: {'phone': phone});
+    } on DioException {
+      // Very rare (taken a second ago): the account is still created
+    }
+  }
+ 
+  // Sign up: check the details, create the user in Firebase, then sync with backend
   Future<bool> registerUser({
     required String email,
     required String password,
     String? username,
+    String? phone,
   }) async {
+    final wantedUsername = (username ?? '').trim();
+    final wantedPhone = (phone ?? '').replaceAll(RegExp(r'[\s\-()]'), '');
+ 
     try {
+      if (wantedUsername.isNotEmpty) {
+        await _ensureDetailsAvailable(wantedUsername, wantedPhone);
+      }
+ 
       await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
-      return await _syncWithBackend();
+ 
+      final synced = await _syncWithBackend();
+ 
+      if (wantedUsername.isNotEmpty) {
+        await _saveUsername(wantedUsername);
+      }
+      if (wantedPhone.isNotEmpty) {
+        await _savePhone(wantedPhone);
+      }
+ 
+      return synced;
+    } on VerificationException {
+      rethrow;
     } on FirebaseAuthException catch (e) {
       throw Exception('Registration failed: ${e.message ?? e.code}');
     } catch (e) {
@@ -163,4 +226,3 @@ class AuthRepository {
     return match == null ? null : int.tryParse(match.group(1)!);
   }
 }
- 

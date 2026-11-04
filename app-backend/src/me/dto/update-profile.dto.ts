@@ -60,6 +60,14 @@ export class UpdateProfileDto {
   @MaxLength(180)
   bio?: string;
  
+  // Only the avatars bundled with the app are accepted (for example assets/avatars/ava1.jpg)
+  @IsOptional()
+  @IsString()
+  @Matches(/^assets\/avatars\/[A-Za-z0-9_\-.]+$/, {
+    message: 'Invalid avatar',
+  })
+  avatarUrl?: string;
+ 
   @IsOptional()
   @IsArray()
   @ArrayMaxSize(10)

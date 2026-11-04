@@ -13,6 +13,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { FirebaseAuthGuard } from '../auth/guards/firebase-auth.guard';
 import { MeService } from './me.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { UpdatePhoneDto } from './dto/update-phone.dto';
  
 @Controller('me')
 @UseGuards(FirebaseAuthGuard)
@@ -29,6 +30,12 @@ export class MeController {
   @Patch('profile')
   updateProfile(@Req() req: any, @Body() dto: UpdateProfileDto) {
     return this.meService.updateProfile(req.user.id, dto);
+  }
+ 
+  // PATCH /api/v1/me/phone
+  @Patch('phone')
+  updatePhone(@Req() req: any, @Body() dto: UpdatePhoneDto) {
+    return this.meService.updatePhone(req.user.id, dto.phone);
   }
  
   // POST /api/v1/me/avatar  (multipart form, field name: "file")

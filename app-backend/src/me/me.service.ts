@@ -24,6 +24,7 @@ export class MeService {
       select: {
         id: true,
         email: true,
+        phone: true,
         isVerified: true,
         createdAt: true,
         profile: true,
@@ -39,6 +40,23 @@ export class MeService {
  
     if (!user) throw new NotFoundException('User not found');
     return user;
+  }
+ 
+  // Saves the phone number entered at signup.
+  // It is kept on the user (private), not on the public profile.
+  async updatePhone(userId: string, phone: string) {
+    try {
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: { phone },
+      });
+      return { phone };
+    } catch (error: any) {
+      if (error?.code === 'P2002') {
+        throw new ConflictException('That phone number is already registered');
+      }
+      throw error;
+    }
   }
  
   async updateProfile(userId: string, dto: UpdateProfileDto) {

@@ -92,6 +92,7 @@ model User {
   moderationLogs   ModerationLog[]         @relation("TargetUserLogs")
   adminLogs        ModerationLog[]         @relation("AdminUserLogs")
   emailVerification EmailVerification?
+  phone String? @unique
 
   profile          Profile?
   wallet           Wallet?

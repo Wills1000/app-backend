@@ -1,7 +1,5 @@
-import 'dart:io';
- 
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:flutter/services.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:gamer_app/core/network/dio_client.dart';
 import 'package:gamer_app/features/auth/presentation/bio_screen.dart';
@@ -22,16 +20,17 @@ class _CompleteProfileScreenState
   late AnimationController _controller;
   late Animation<double> glow;
  
-  final usernameController = TextEditingController();
   final firstNameController = TextEditingController();
   final lastNameController = TextEditingController();
   final dobController = TextEditingController();
   final countryController = TextEditingController();
  
-  final ImagePicker _picker = ImagePicker();
   final ProfileRepository _profileRepo = ProfileRepository(DioClient());
  
-  File? _avatarFile; // the photo the user picked (null = default avatar)
+  // Every picture inside assets/avatars/ shows up here automatically
+  List<String> _avatars = ['assets/avatars/ava1.jpg'];
+  String _selectedAvatar = 'assets/avatars/ava1.jpg';
+ 
   DateTime? dob;
   bool _isSaving = false;
  
@@ -54,11 +53,12 @@ class _CompleteProfileScreenState
       begin: .25,
       end: .55,
     ).animate(_controller);
+ 
+    _loadAvatars();
   }
  
   @override
   void dispose() {
-    usernameController.dispose();
     firstNameController.dispose();
     lastNameController.dispose();
     dobController.dispose();
@@ -109,140 +109,87 @@ class _CompleteProfileScreenState
   }
  
   // ---------------------------------------------------------------------------
-  // Avatar
+  // Avatars
   // ---------------------------------------------------------------------------
  
-  Future<void> _pickAvatar(ImageSource source) async {
+  // Finds every picture in assets/avatars/ (ava1.jpg, ava2.png, ...)
+  Future<void> _loadAvatars() async {
     try {
-      final picked = await _picker.pickImage(
-        source: source,
-        maxWidth: 1024,
-        maxHeight: 1024,
-        imageQuality: 85,
-      );
-      if (picked == null) return;
+      final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
+ 
+      int numberIn(String path) {
+        final match = RegExp(r'\d+').firstMatch(path.split('/').last);
+        return int.tryParse(match?.group(0) ?? '') ?? 0;
+      }
+ 
+      final found = manifest
+          .listAssets()
+          .where((path) =>
+              path.startsWith('assets/avatars/') &&
+              RegExp(r'\.(png|jpe?g|webp)$', caseSensitive: false)
+                  .hasMatch(path))
+          .toList()
+        ..sort((a, b) {
+          final byNumber = numberIn(a).compareTo(numberIn(b));
+          return byNumber != 0 ? byNumber : a.compareTo(b);
+        });
+ 
+      if (!mounted || found.isEmpty) return;
  
       setState(() {
-        _avatarFile = File(picked.path);
+        _avatars = found;
+        if (!found.contains(_selectedAvatar)) {
+          _selectedAvatar = found.first;
+        }
       });
     } catch (_) {
-      _showMessage(
-        source == ImageSource.camera
-            ? "Could not open the camera. Please check the app's camera permission."
-            : "Could not open your gallery. Please check the app's photo permission.",
-      );
+      // Keep the default avatar if the list can't be read
     }
   }
  
-  Widget _avatarOption({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    return ListTile(
-      onTap: onTap,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-      ),
-      leading: Container(
-        width: 44,
-        height: 44,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: const Color(0xff970303).withOpacity(.15),
-        ),
-        child: Icon(icon, color: const Color(0xff970303)),
-      ),
-      title: Text(
-        label,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
+  Widget _avatarThumb(String path) {
+    final selected = path == _selectedAvatar;
  
-  void _showAvatarOptions() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (sheetContext) {
-        return Container(
-          padding: const EdgeInsets.fromLTRB(24, 14, 24, 24),
-          decoration: BoxDecoration(
-            color: const Color(0xff050505),
-            borderRadius: const BorderRadius.vertical(
-              top: Radius.circular(35),
-            ),
-            border: Border.all(
-              color: const Color(0xff970303).withOpacity(.3),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xff970303).withOpacity(.25),
-                blurRadius: 40,
-                spreadRadius: 3,
-              ),
-            ],
-          ),
-          child: SafeArea(
-            top: false,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 44,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.white24,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                const Text(
-                  "Profile Photo",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                _avatarOption(
-                  icon: Icons.photo_library_outlined,
-                  label: "Choose from gallery",
-                  onTap: () {
-                    Navigator.pop(sheetContext);
-                    _pickAvatar(ImageSource.gallery);
-                  },
-                ),
-                _avatarOption(
-                  icon: Icons.camera_alt_outlined,
-                  label: "Take a photo",
-                  onTap: () {
-                    Navigator.pop(sheetContext);
-                    _pickAvatar(ImageSource.camera);
-                  },
-                ),
-                if (_avatarFile != null)
-                  _avatarOption(
-                    icon: Icons.delete_outline,
-                    label: "Remove photo",
-                    onTap: () {
-                      Navigator.pop(sheetContext);
-                      setState(() {
-                        _avatarFile = null;
-                      });
-                    },
-                  ),
-              ],
-            ),
-          ),
-        );
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.selectionClick();
+        setState(() {
+          _selectedAvatar = path;
+        });
       },
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: 200),
+        opacity: selected ? 1 : .6,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          width: 72,
+          height: 72,
+          margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+          padding: const EdgeInsets.all(3),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: selected ? const Color(0xff970303) : Colors.white12,
+              width: selected ? 2.5 : 1,
+            ),
+            boxShadow: selected
+                ? [
+                    BoxShadow(
+                      color: const Color(0xff970303).withOpacity(.45),
+                      blurRadius: 14,
+                      spreadRadius: 1,
+                    ),
+                  ]
+                : [],
+          ),
+          child: ClipOval(
+            child: Image.asset(
+              path,
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+      ),
     );
   }
  
@@ -295,11 +242,6 @@ class _CompleteProfileScreenState
   // ---------------------------------------------------------------------------
  
   String? _validate() {
-    final username = usernameController.text.trim();
- 
-    if (!RegExp(r'^[a-zA-Z0-9_]{3,20}$').hasMatch(username)) {
-      return "Username must be 3-20 characters: letters, numbers or underscore.";
-    }
     if (firstNameController.text.trim().isEmpty) {
       return "Please enter your first name.";
     }
@@ -318,19 +260,6 @@ class _CompleteProfileScreenState
     return null;
   }
  
-  String _genderToApi(String value) {
-    switch (value) {
-      case "Male":
-        return "MALE";
-      case "Female":
-        return "FEMALE";
-      case "Other":
-        return "OTHER";
-      default:
-        return "PREFER_NOT_TO_SAY";
-    }
-  }
- 
   Future<void> _saveAndContinue() async {
     if (_isSaving) return;
  
@@ -347,23 +276,17 @@ class _CompleteProfileScreenState
     });
  
     try {
-      // Details first (this also checks that the username is free)
       await _profileRepo.updateProfile({
-        'username': usernameController.text.trim(),
+        'avatarUrl': _selectedAvatar,
         'firstName': firstNameController.text.trim(),
         'lastName': lastNameController.text.trim(),
         'dateOfBirth': _isoDate(dob!),
-        'gender': _genderToApi(gender!),
+        'gender': gender == "Male" ? "MALE" : "FEMALE",
         'country': country,
         if (state != null) 'state': state,
         if (city != null) 'city': city,
         if (language != null) 'language': language,
       });
- 
-      // Then the photo, if one was picked
-      if (_avatarFile != null) {
-        await _profileRepo.uploadAvatar(_avatarFile!);
-      }
  
       if (!mounted) return;
  
@@ -493,76 +416,44 @@ class _CompleteProfileScreenState
                               ),
                             ),
                             const SizedBox(height: 20),
-                            GestureDetector(
-                              onTap: _showAvatarOptions,
-                              child: Stack(
-                                children: [
-                                  Container(
-                                    width: 110,
-                                    height: 110,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: const Color(0xff970303),
-                                        width: 2,
-                                      ),
-                                    ),
-                                    child: ClipOval(
-                                      child: _avatarFile != null
-                                          ? Image.file(
-                                              _avatarFile!,
-                                              fit: BoxFit.cover,
-                                            )
-                                          : Image.asset(
-                                              "assets/avatars/ava1.jpg",
-                                              fit: BoxFit.cover,
-                                            ),
-                                    ),
+ 
+                            // Big preview of the chosen avatar
+                            AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 250),
+                              child: Container(
+                                key: ValueKey(_selectedAvatar),
+                                width: 110,
+                                height: 110,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: const Color(0xff970303),
+                                    width: 2,
                                   ),
-                                  Positioned(
-                                    right: 0,
-                                    bottom: 0,
-                                    child: Container(
-                                      padding: const EdgeInsets.all(7),
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: const Color(0xff970303),
-                                        border: Border.all(
-                                          color: const Color(0xff050505),
-                                          width: 3,
-                                        ),
-                                      ),
-                                      child: const Icon(
-                                        Icons.camera_alt,
-                                        size: 16,
-                                        color: Colors.white,
-                                      ),
-                                    ),
+                                ),
+                                child: ClipOval(
+                                  child: Image.asset(
+                                    _selectedAvatar,
+                                    fit: BoxFit.cover,
                                   ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            TextButton(
-                              onPressed: _showAvatarOptions,
-                              child: const Text(
-                                "Change Avatar",
-                                style: TextStyle(
-                                  color: Color(0xff970303),
-                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 15),
-                            TextField(
-                              controller: usernameController,
-                              style: const TextStyle(color: Colors.white),
-                              decoration: inputStyle(
-                                "Username",
-                                Icons.person_outline,
+                            const SizedBox(height: 16),
+ 
+                            // Pick one from the avatars we have
+                            SizedBox(
+                              height: 82,
+                              child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: _avatars.length,
+                                itemBuilder: (context, index) {
+                                  return _avatarThumb(_avatars[index]);
+                                },
                               ),
                             ),
-                            const SizedBox(height: 15),
+                            const SizedBox(height: 20),
+ 
                             TextField(
                               controller: firstNameController,
                               style: const TextStyle(color: Colors.white),
@@ -610,14 +501,6 @@ class _CompleteProfileScreenState
                                 DropdownMenuItem(
                                   value: "Female",
                                   child: Text("Female"),
-                                ),
-                                DropdownMenuItem(
-                                  value: "Other",
-                                  child: Text("Other"),
-                                ),
-                                DropdownMenuItem(
-                                  value: "Prefer not to say",
-                                  child: Text("Prefer not to say"),
                                 ),
                               ],
                               onChanged: (value) {

@@ -1,4 +1,13 @@
-import { Controller, Post, Delete, UseGuards, Req, Body } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Delete,
+  UseGuards,
+  Req,
+  Body,
+  Query,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { VerificationService } from './verification.service';
 import { VerifyCodeDto } from './dto/verify-code.dto';
@@ -15,6 +24,15 @@ export class AuthController {
   @UseGuards(FirebaseAuthGuard)
   async syncUser(@Req() req: any) {
     return req.user;
+  }
+ 
+  // Public: tells the signup screen if a username (and phone number) is valid and still free
+  @Get('username-available')
+  async usernameAvailable(
+    @Query('username') username: string,
+    @Query('phone') phone?: string,
+  ) {
+    return this.authService.isUsernameAvailable(username, phone);
   }
  
   // Sends a 6-digit code to the signed-in user's email

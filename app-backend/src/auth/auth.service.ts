@@ -57,6 +57,52 @@ export class AuthService {
     }
   }
  
+  // Checks that a username (and optional phone number) is valid and not already used
+  async isUsernameAvailable(username: string, phone?: string) {
+    const name = (username ?? '').trim();
+ 
+    if (!/^[a-zA-Z0-9_]{3,20}$/.test(name)) {
+      return {
+        available: false,
+        message: 'Username must be 3-20 characters: letters, numbers or underscore',
+      };
+    }
+ 
+    const existing = await this.prisma.profile.findFirst({
+      where: { username: { equals: name, mode: 'insensitive' } },
+      select: { id: true },
+    });
+ 
+    if (existing) {
+      return { available: false, message: 'That username is already taken' };
+    }
+ 
+    if (phone) {
+      const cleaned = phone.replace(/[\s\-()]/g, '');
+ 
+      if (!/^\+?[0-9]{7,15}$/.test(cleaned)) {
+        return {
+          available: false,
+          message: 'Enter a valid phone number (7-15 digits)',
+        };
+      }
+ 
+      const phoneOwner = await this.prisma.user.findFirst({
+        where: { phone: cleaned },
+        select: { id: true },
+      });
+ 
+      if (phoneOwner) {
+        return {
+          available: false,
+          message: 'That phone number is already registered',
+        };
+      }
+    }
+ 
+    return { available: true };
+  }
+ 
   async deleteAccount(userId: string, firebaseUid: string) {
     await this.firebaseService.deleteUser(firebaseUid);
     return this.prisma.user.delete({ where: { id: userId } });
