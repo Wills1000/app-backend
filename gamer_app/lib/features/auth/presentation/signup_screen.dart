@@ -61,7 +61,7 @@ class _SignupScreenState extends State<SignupScreen>
     super.dispose();
   }
 
-  Future<void> _handleSignup() async {
+    Future<void> _handleSignup() async {
     if (!_agreeTerms) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please agree to the Terms & Privacy Policy')),
@@ -76,6 +76,14 @@ class _SignupScreenState extends State<SignupScreen>
       return;
     }
 
+    final phone = _phoneController.text.trim().replaceAll(RegExp(r'[\s\-()]'), '');
+    if (!RegExp(r'^\+?[0-9]{7,15}$').hasMatch(phone)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a valid phone number')),
+      );
+      return;
+    }
+
     setState(() => _isLoading = true);
 
     try {
@@ -83,6 +91,7 @@ class _SignupScreenState extends State<SignupScreen>
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
         username: _usernameController.text.trim(),
+        phone: phone,
       );
 
       if (success && mounted) {

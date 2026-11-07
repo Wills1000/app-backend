@@ -1,31 +1,35 @@
 import 'package:flutter/material.dart';
 import 'profile_avatar.dart';
 import 'package:gamer_app/features/wallet/presentation/pages/wallet_screen.dart';
-
+ 
 class ProfileHeader extends StatelessWidget {
   final String name;
   final String username;
   final String country;
+  final String flag;
   final String bio;
   final String avatarUrl;
   final int level;
+  final bool isVerified;
   final VoidCallback onEditProfile;
   final VoidCallback onWalletTap;
-
+ 
   const ProfileHeader({
     super.key,
     required this.name,
     required this.username,
     required this.country,
+    this.flag = '🌍',
     required this.bio,
     required this.avatarUrl,
     required this.level,
+    this.isVerified = true,
     required this.onEditProfile,
     required this.onWalletTap,
   });
-
+ 
   static const Color primaryRed = Color(0xFF970303);
-
+ 
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -37,13 +41,13 @@ class ProfileHeader extends StatelessWidget {
           level: level,
         ),
         const SizedBox(width: 16),
-
+ 
         // Details + Action Buttons
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Username + Verified Badge
+              // Name + Verified Badge
               Row(
                 children: [
                   Flexible(
@@ -58,38 +62,44 @@ class ProfileHeader extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  const SizedBox(width: 6),
-                  Container(
-                    padding: const EdgeInsets.all(2),
-                    decoration: const BoxDecoration(
-                      color: primaryRed,
-                      shape: BoxShape.circle,
+                  if (isVerified) ...[
+                    const SizedBox(width: 6),
+                    Container(
+                      padding: const EdgeInsets.all(2),
+                      decoration: const BoxDecoration(
+                        color: primaryRed,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.check, color: Colors.white, size: 12),
                     ),
-                    child: const Icon(Icons.check, color: Colors.white, size: 12),
-                  ),
+                  ],
                 ],
               ),
               const SizedBox(height: 2),
-
+ 
               // Handle
               Text(
                 '@$username',
                 style: const TextStyle(color: Colors.grey, fontSize: 13),
               ),
               const SizedBox(height: 4),
-
+ 
               // Country Flag / Location
               Row(
                 children: [
-                  const Text('🇳🇬 ', style: TextStyle(fontSize: 12)),
-                  Text(
-                    country,
-                    style: const TextStyle(color: Colors.white70, fontSize: 12),
+                  Text('$flag ', style: const TextStyle(fontSize: 12)),
+                  Flexible(
+                    child: Text(
+                      country,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(color: Colors.white70, fontSize: 12),
+                    ),
                   ),
                 ],
               ),
               const SizedBox(height: 8),
-
+ 
               // Bio
               Text(
                 bio,
@@ -102,7 +112,7 @@ class ProfileHeader extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 12),
-
+ 
               // Action Buttons Row: Edit Profile & Wallet
               Row(
                 children: [
@@ -133,20 +143,20 @@ class ProfileHeader extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 8),
-
+ 
                   // Wallet Button
                   Expanded(
                     child: SizedBox(
                       height: 36,
                       child: ElevatedButton.icon(
                         onPressed: () {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (_) => const WalletScreen(),
-    ),
-  );
-},
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const WalletScreen(),
+                            ),
+                          );
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: primaryRed,
                           elevation: 0,
@@ -176,3 +186,4 @@ class ProfileHeader extends StatelessWidget {
     );
   }
 }
+ 

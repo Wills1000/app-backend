@@ -43,9 +43,11 @@ class AuthRepository {
       );
       return await _syncWithBackend();
     } on FirebaseAuthException catch (e) {
-      throw Exception('Authentication failed: ${e.message ?? e.code}');
-    } catch (e) {
-      throw Exception('Authentication failed: $e');
+      throw VerificationException(_friendlyAuthError(e));
+    } on DioException catch (e) {
+      throw VerificationException(_serverMessage(e, 'Could not sign you in'));
+    } catch (_) {
+      throw VerificationException('Something went wrong. Please try again.');
     }
   }
  
@@ -67,9 +69,9 @@ class AuthRepository {
           msg is String ? msg : 'That username or phone number is already used',
         );
       }
-    } on DioException {
+    } on DioException catch (e) {
       throw VerificationException(
-        'Could not check your details. Please check your connection and try again.',
+        _serverMessage(e, 'Could not check your details'),
       );
     }
   }
@@ -112,7 +114,19 @@ class AuthRepository {
         password: password,
       );
  
-      final synced = await _syncWithBackend();
+      bool synced;
+      try {
+        synced = await _syncWithBackend();
+      } on DioException catch (e) {
+        // The server step failed: undo the Firebase account so the user
+        // can try again with the same email
+        try {
+          await _auth.currentUser?.delete();
+        } catch (_) {}
+        throw VerificationException(
+          _serverMessage(e, 'Could not finish creating your account'),
+        );
+      }
  
       if (wantedUsername.isNotEmpty) {
         await _saveUsername(wantedUsername);
@@ -125,9 +139,9 @@ class AuthRepository {
     } on VerificationException {
       rethrow;
     } on FirebaseAuthException catch (e) {
-      throw Exception('Registration failed: ${e.message ?? e.code}');
-    } catch (e) {
-      throw Exception('Registration failed: $e');
+      throw VerificationException(_friendlyAuthError(e));
+    } catch (_) {
+      throw VerificationException('Something went wrong. Please try again.');
     }
   }
  
@@ -138,9 +152,11 @@ class AuthRepository {
       await _auth.signInWithCredential(credential);
       return await _syncWithBackend();
     } on FirebaseAuthException catch (e) {
-      throw Exception('Google authentication failed: ${e.message ?? e.code}');
-    } catch (e) {
-      throw Exception('Google authentication failed: $e');
+      throw VerificationException(_friendlyAuthError(e));
+    } on DioException catch (e) {
+      throw VerificationException(_serverMessage(e, 'Could not sign you in'));
+    } catch (_) {
+      throw VerificationException('Something went wrong. Please try again.');
     }
   }
  
@@ -196,6 +212,45 @@ class AuthRepository {
  
   // --- helpers to read the backend's responses safely ---
  
+  // Turns a failed server request into a message the user can read.
+  // Without a response (no internet / server asleep) it explains that;
+  // with a response it shows the server's message and the status code.
+  String _serverMessage(DioException e, String fallback) {
+    final status = e.response?.statusCode;
+ 
+    if (status == null) {
+      return 'Could not reach the server. Please check your connection and try again '
+          '(the first request can take up to a minute).';
+    }
+ 
+    return _messageFrom(e.response?.data, '$fallback (error $status)');
+  }
+ 
+  // Turns Firebase's error codes into plain messages
+  String _friendlyAuthError(FirebaseAuthException e) {
+    switch (e.code) {
+      case 'email-already-in-use':
+        return 'That email is already registered. Try logging in instead.';
+      case 'invalid-email':
+        return 'Please enter a valid email address.';
+      case 'weak-password':
+        return 'Password is too weak. Use at least 6 characters.';
+      case 'user-not-found':
+      case 'wrong-password':
+      case 'invalid-credential':
+        return 'Incorrect email or password.';
+      case 'user-disabled':
+        return 'This account has been disabled.';
+      case 'too-many-requests':
+        return 'Too many attempts. Please wait a moment and try again.';
+      case 'network-request-failed':
+        return 'No internet connection. Please check your network.';
+      default:
+        return e.message ?? e.code;
+    }
+  }
+ 
+ 
   // Looks for [key] in a (possibly nested) response map.
   dynamic _find(dynamic data, String key, [int depth = 0]) {
     if (data is Map && depth < 4) {
@@ -226,3 +281,4 @@ class AuthRepository {
     return match == null ? null : int.tryParse(match.group(1)!);
   }
 }
+ 

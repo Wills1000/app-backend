@@ -13,7 +13,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { FirebaseAuthGuard } from '../auth/guards/firebase-auth.guard';
 import { MeService } from './me.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import { UpdatePhoneDto } from './dto/update-phone.dto';
+import { UpdatePhoneDto } from '././dto/update-phone.dto';
  
 @Controller('me')
 @UseGuards(FirebaseAuthGuard)

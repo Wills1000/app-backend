@@ -177,6 +177,13 @@ model Profile {
   gender      Gender?
   dateOfBirth DateTime?
 
+  firstName String?
+  lastName  String?
+  state     String?
+  city      String?
+  language  String?
+  quickTags String[] @default([])
+
   gamingIds Json @default("{}")
 
   matchesPlayed Int   @default(0)
