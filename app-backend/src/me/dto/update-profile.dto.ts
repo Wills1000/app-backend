@@ -74,4 +74,3 @@ export class UpdateProfileDto {
   @IsString({ each: true })
   quickTags?: string[];
 }
- 

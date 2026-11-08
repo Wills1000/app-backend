@@ -108,4 +108,3 @@ export class AuthService {
     return this.prisma.user.delete({ where: { id: userId } });
   }
 }
- 

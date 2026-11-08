@@ -61,4 +61,3 @@ export class AuthController {
     return this.authService.deleteAccount(req.user.id, req.user.firebaseUid);
   }
 }
- 

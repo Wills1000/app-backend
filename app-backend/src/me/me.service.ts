@@ -4,6 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { FriendRequestStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { StorageService } from '../storage/storage.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
@@ -17,7 +18,7 @@ export class MeService {
     private storage: StorageService,
   ) {}
  
-  // The signed-in user with their profile and wallet balances
+  // The signed-in user with their profile, wallet balances and counts
   async getMe(userId: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
@@ -35,11 +36,32 @@ export class MeService {
             lockedBalance: true,
           },
         },
+        _count: {
+          select: { following: true, followers: true, posts: true },
+        },
       },
     });
  
     if (!user) throw new NotFoundException('User not found');
-    return user;
+ 
+    const friends = await this.prisma.friendRequest.count({
+      where: {
+        status: FriendRequestStatus.ACCEPTED,
+        OR: [{ senderId: userId }, { receiverId: userId }],
+      },
+    });
+ 
+    const { _count, ...rest } = user;
+ 
+    return {
+      ...rest,
+      counts: {
+        friends,
+        following: _count.following,
+        followers: _count.followers,
+        posts: _count.posts,
+      },
+    };
   }
  
   // Saves the phone number entered at signup.
@@ -134,4 +156,3 @@ export class MeService {
     return { avatarUrl };
   }
 }
- 
