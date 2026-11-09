@@ -197,13 +197,6 @@ model Profile {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  firstName String?
-  lastName  String?
-  state     String?
-  city      String?
-  language  String?
-  quickTags String[] @default([])
 }
 
 enum GameStatus {
